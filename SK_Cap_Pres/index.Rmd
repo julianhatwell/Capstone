@@ -1,0 +1,83 @@
+---
+title       : Next word prediction app
+subtitle    : The Data Science Specialisation Capstone Project
+author      : Julian Hatwell
+job         : Analyst
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : [mathjax]     # {mathjax, quiz, bootstrap}
+mode        : standalone    # {draft, selfcontained}
+knit        : slidify::knit2slides
+--- 
+
+## Introduction & Motivation
+
+The Coursera Data Science Specialisation is by now a widely recognised MOOC, conducted over 9 modules plus a Capstone Project. Taking 10-12 months to complete.
+
+This presentation is part of the final output of the Capstone Project, which has been conducted in partnership with Swiftkey.
+
+The objective (inspired by mobile apps such as SwiftKey) is to create an algorithm that can predict the next word given a text input and deliver this into production as a hosted ShinyApp.
+
+---
+ 
+## Theory & Practice
+
+The theories behind [text mining](https://en.wikipedia.org/wiki/Text_mining) first appeared in the 1980's and are now sufficiently mature for there to be widely available tooling for various platforms. 
+
+The ["tm" package](https://cran.r-project.org/web/packages/tm/index.html) for R has been used extensively to carry out this project.
+
+[Functions](https://cran.r-project.org/web/packages/tm/vignettes/tm.pdf) in the ["tm" package](https://cran.r-project.org/web/packages/tm/index.html) make it trivial to determine e.g. what are the most frequently used terms, as well as more complicated lookups e.g. where nGrams appear to be associated by their appearance together in multiple source documents.
+
+SwiftKey have kindly provided three sources of user generated content based on Blogs, News and Twitter.
+
+These text documents are sampled, tokenised (to identify individual words within text) and converted into nGrams. An nGram is a contiguous sequence of words of length n that appear somewhere in the source document.
+
+---
+
+## Word Prediction App for the Capstone Project
+
+The app can be found [here](https://julianhatwell.shinyapps.io/wordpredict). 
+
+It is very easy to use and implements the following features:
+
+* Select the type of prediction from "General," "Formal" or "Tweet."
+    + App will dynamically switch to appropriate search space to povide a tailored prediction
+    + In the SwiftKey setting, it could detect the application the user is working on such as blogging or Twitter
+* Start typing text and the app will return the prediction for the next word
+* Partial on the first word return a prediction for word completion
+* The first space following some word/characters moves to the nGram model for next word prediction
+
+---
+
+## Appendix
+
+Interim Milestone Report : link
+
+[Gihub Repo](https://github.com/julianhatwell/SK_Cap) : delete and recreate
+
+Algorithms researched:
+* A naive backoff
+    + Takes last 3 words of text input
+    + Tries to match with the first 3 words in the n = 4 ngram catalogue
+    + Returning the last word of the most frequent, if any match is found
+    + If no match found, drops the first word and backs off to the next lower order nGram
+    + Repeat until it finds any match
+    + If no match found, returns a random word from the 100 most frequent unigrams
+* Smoothing with interpolation and discounting
+    + Takes last 3 words of text input
+    + Converts into lookup terms word(3,2,1), word(2,1) and word(1)
+    + Looks up each term in the nGram catalogues 1 and 2 words longer
+    + Uses a discount value for unseen terms (2)
+    + Adds up all the probabilities: sum(frequency/(total catalogue + discount)) for each candidate word, weighting the nGram matches with tuning parameter Lambda
+    + Return most probable term
+
+References:
+[Cornell University's lecture notes ](http://www.cs.cornell.edu/courses/cs4740/2014sp/lectures.htm)
+
+[This presentation from Stanford](http://nlp.stanford.edu/~wcmac/papers/20050421-smoothing-tutorial.pdf) look like a useful starting point.
+
+[Anoop Sarkhar's Notes](http://anoopsarkar.github.io/nlp-class/assets/slides/lm.pdf)
+
+[N Chambers Lecture Notes](http://www.usna.edu/Users/cs/nchamber/courses/nlp/f12/slides/set4-smoothing.pdf)
+---

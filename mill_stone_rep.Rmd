@@ -1,0 +1,173 @@
+---
+output: html_document
+---
+
+#####Julian Hatwell
+#####`r format(Sys.time(), "%b %Y")`
+
+```{r prologue, include=FALSE}
+require(knitr)
+require(tm)
+require(RWeka)
+require(lattice)
+require(wordcloud)
+
+knitr::opts_chunk$set(warning = FALSE
+                      , message = FALSE
+                      , echo = FALSE
+                      )
+
+knitr::opts_template$set(
+  fig.wide = list(fig.height = 4.5, fig.width = 8, fig.align='center')
+  , fig.wideX = list(fig.height = 3, fig.width = 9, fig.align='center')
+  , fig.relaxed = list(fig.height = 6, fig.width = 8, fig.align='center')
+  , fig.tile = list(fig.height = 3, fig.width = 3)
+)
+```
+
+```{r source_external_code_chunks}
+read_chunk("utility_code.R")
+read_chunk("utility_code2.R")
+read_chunk("plots.R")
+```
+
+```{r environment}
+source("env_consts.R")
+source("common_functions.R")
+source("https://raw.githubusercontent.com/julianhatwell/R_Themes/master/simpleTheme.R")
+```
+
+```{r dataLoadMain, cache=TRUE}
+```
+
+## Introduction
+
+This is a progress report for the Coursera Data Science Specialisation capstone project. In this project, learners are required to create a predictive text app similar to those used on mobile phones. The project is organised in partnership with Coursera, Johns Hopkins Bloomberg School of Public Health and SwiftKey.
+
+## Approach and Milestones
+
+1. Research into natural language processing
+
+2. Exploratory Data Analysis
+
+3. Developing the prediction model
+
+4. Implementing the model/algorithm into a Shiny App
+
+5. Producing a slide deck describing the App and explaining key features.
+
+This report will cover points 1 & 2 and suggest approach for remaining steps.
+
+## Research
+
+The following materials have been referred to extensively:
+
+[Natural Language Processing](https://en.wikipedia.org/wiki/Natural_language_processing)
+
+[Markov Chain](https://en.wikipedia.org/wiki/Markov_chain)
+
+[Text Mining Infrastructure in R (Paper)](https://www.jstatsoft.org/index.php/jss/article/view/v025i05/v25i05.pdf)
+
+[Text Mining of Twitter Data (R-Bloggers)](http://www.rdatamining.com/examples/text-mining)
+
+## Exploratory Data Analysis
+
+The data are provided as three large text files with "People" generated data from different sources:
+
+```{r displaySources}
+sources
+```
+
+Here is some general file information, without any pre-processing or cleanup.
+
+```{r fileLoc1}
+files <- sk.files
+```
+
+
+```{r basicNs, cache=TRUE}
+```
+
+```{r basicNsPlot1, opts.label='fig.wideX'}
+```
+
+It turns out that these data are simply too large to work with effectively and so a random sample is taken of `r smp.size` multplied by the ratio of average characters per line to create samples of roughly equal size from each source. This is further split so that `r val.size * 100`% can be kept aside as a validation set for estimating prediction accuracy.
+
+```{r createSamples}
+```
+
+```{r dataLoadSample}
+```
+
+```{r fileLoc2}
+files <- sk.dumps
+```
+
+```{r basicNs}
+```
+
+This table shows the summaries for the training set. It is shown that the average line length has been well preserved by the sampling process. The max line length is much less because only a subset of lines collected by the random sampling and it is unlikely to find the single longest line among these.
+
+This training subset can now be used to create the corpus from which the prediction model will be developed.
+
+### Data Cleanup
+
+At this point, it's useful to determine if these three datasets have differing characteristics, as this could inform the approach for the rest of the assignment.
+
+From a visual, manual check over the data set, it was generally found to be very noisy and not easy to analyse. The following preprocessing steps are taken to try to reduce the noise in the data:
+
+1. Convert to ASCII to remove any special characters that break later steps
+2. Remove any unicode translations e.g. "\\u0092"
+3. Remove any strings with leading hash symbols (#). Twitter hashtags are very prevalent and are usually non-words or fused words without spaces that can't be utilised.
+4. Remove links, URL's, email addresses, filenames
+5. Remove various combinations of special characters and grammar characters that add no language value.
+6. Remove all numbers
+7. Convert all to lower case
+8. Remove all stop words
+    + Optional step only done for EDA. Stop words will be needed in the main prediction model
+    + Done after converting to lower case for pattern matching to be reliable
+    + Done before removing punctuation so that for example "I'm" not converted to Im and then ignored
+9. Remove all punctuation
+10. Remove whitespace
+11. Transform to all lower case
+12. Stem words
+    + Optional step only done for EDA. Complete words will be needed in the main prediction model
+
+```{r edaPreProc}
+```
+
+The data is then tokenised into into different sizes of word unit n-grams for further work. An n-gram is simply an item of n contiguous text units (e.g. words, letters, phonemes). In this case an n-gram of size one is a single word, while an n-gram of size two is a pair of words that have been found adjacent to each other in the text. 
+
+### Exploratory Plots
+
+```{r countBasedEvaluation}
+```
+
+Here is a selection of exploratory plots to help visualise similarities and differences in the data.
+
+```{r uniqueTermsPlots, opts.label='fig.wideX'}
+```
+
+Here we see that twitter source has fewer distinct terms in all n-gram sizes while news has the highest number. Uniqueness increases with longer n-grams (as expected).
+
+```{r wordCountPlots, opts.label='fig.tile'}
+```
+
+The x-axis labels are over-plotted for n-Gram size 1 & 2 so the labels have been rotated to make it possible to see where term repetitions climb into the 10's, 100's, 1000's and even 10000's simply by looking at the spread.
+
+In general, Blogs appears to have the least repetition and Twitter the most. To make any more accurate claims in this area would require a more detailed analysis.
+
+```{r wordClouds, opts.label='fig.tile', results='hide'}
+```
+
+Finally, the word clouds above give a sense of the content in the 1-, 2- and 3-gram models. Keep in mind that the words have been stemmed and stop words removed, so they don't follow a natural English. This was done to better understand frequency and repetition of terms but in the prediction model, unstemmed and stop words will be required.
+
+## Next Steps
+
+Stop words and unstemmed terms will be used in the final model. This will result in bigger models.
+
+There is a performance/accuracy trade-off from choosing a sample of the SwiftKey data. Other means, such as removing sparse terms will be investigated, to try to maximise the number of records used.
+
+Some research will be done to create more than one algorithm for comparison. 
+
+Accuracy will be tested and measured using a hold out set. Some algorithms have weights, lambdas or some kind of tuning parameter. A test script will be created to enable multiple runs with ease.
