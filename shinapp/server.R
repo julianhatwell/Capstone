@@ -1,5 +1,13 @@
 library(shiny)
-source("app_startup_backoff_naive.R")
+library(tm)
+library(dplyr)
+load("tdm.Rdata")
+
+# tuning parameters
+lambdas <- c(0.6, 0.29, 0.99995, 0.00005)
+rare <- 1
+
+source("app_startup_interpolation.R")
 
 shinyServer(
   function(input, output) {
