@@ -1,1 +1,1 @@
-# SK_Cap
+# Data Science Capstone Project
