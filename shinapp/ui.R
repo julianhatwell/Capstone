@@ -9,7 +9,8 @@ shinyUI(
                    c("General" = "all",
                      "Formal" = "txt",
                      "Tweet" = "twit")),
-      textInput('inText', label = 'Enter Text:')
+      textInput('inText', label = 'Enter Text:'),
+      uiOutput("button")
       ),
 
     mainPanel(
