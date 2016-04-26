@@ -1,4 +1,3 @@
-source("common_functions.R")
 source("utility_code2.R")
 en_US.unstemmed <- myPreProc(en_US, stem = FALSE, rmStops = FALSE)
 

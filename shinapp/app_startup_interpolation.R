@@ -61,5 +61,6 @@ predText <- function(tx, txType) {
   
   p <- lambdas[1] * p4 + lambdas[2] * p3 + lambdas[3] * p2 + lambdas[4] * p1
   names(p) <- allCandidates
-  names(which.max(p))
+  names(p[order(p, decreasing = TRUE)][1:3])
+  # names(which.max(p))
 }

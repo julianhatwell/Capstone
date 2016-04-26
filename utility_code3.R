@@ -35,11 +35,15 @@ trans <- tm_map(trans, content_transformer(
 trans <- tm_map(trans, content_transformer(
   function(x) { gsub("[\\^$+\"]", " ", x) })) # remove anything with non-grammatical punc
 trans <- tm_map(trans, content_transformer(
-  function(x) { gsub("( '|' )", " ", x) })) # remove anything with non-grammatical punc
+  function(x) { gsub("(^'| '|' |''| ' )", " ", x) })) # remove anything with non-grammatical punc
 trans <- tm_map(trans, content_transformer(
   function(x) { gsub("[\\[*]", " ", x) })) # remove anything with non-grammatical punc
 trans <- tm_map(trans, content_transformer(
   function(x) { gsub("[\\]*]", " ", x) })) # remove anything with non-grammatical punc
+trans <- tm_map(trans, content_transformer(
+  function(x) { gsub("[\\]*]", " ", x) })) # remove anything with non-grammatical punc
+trans <- tm_map(trans, content_transformer(
+  function(x) { gsub("[.+,+\\?+]", " ", x) })) # remove ramaining punc except apostrophes
 trans <- tm_map(trans, removeNumbers)
 trans <- tm_map(trans, content_transformer(tolower))
 #if (rmStops) { trans <- tm_map(trans, removeWords, stops) }
@@ -55,17 +59,19 @@ trans <- tm_map(trans, content_transformer(
 # }
 # trans
 
+trans <- tm_map(trans, content_transformer(
+  function(x) { gsub("[\\?+]", " ", x) })) # remove anything with non-grammatical punc
+
+grep("\\?", trans[[1]]$content) 
+grep("''", trans[[2]]$content, value = TRUE)
+gsub(" - ", " ", trans[[2]]$content[11383]) 
+
 trans <- testCreateTDM(trans, threeGramTK)
 trans <- as.matrix(trans)
 head(trans);tail(trans);some(trans)
 head(trans[trans[,1]>0,1]);tail(trans[trans[,1]>0,1]);some(trans[trans[,1]>0,1])
 head(trans[trans[,2]>0,2]);tail(trans[trans[,2]>0,2]);some(trans[trans[,2]>0,2])
 head(trans[trans[,3]>0,3]);tail(trans[trans[,3]>0,3]);some(trans[trans[,3]>0,3])
-
-gsub(" - ", " ", trans[[2]]$content[11383]) 
-grep(" - ", trans[[2]]$content) 
-grep("[xX] *[xX]", trans[[3]]$content, value = TRUE)
-
 
 rownames(trans)[grep("[^a-zA-Z '-]+", rownames(trans))]
 

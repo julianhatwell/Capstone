@@ -44,6 +44,8 @@ myPreProc <- function(corp
     function(x) { gsub("[\\[*]", " ", x) })) # remove anything with non-grammatical punc
   trans <- tm_map(trans, content_transformer(
     function(x) { gsub("[\\]*]", " ", x) })) # remove anything with non-grammatical punc
+  trans <- tm_map(trans, content_transformer(
+    function(x) { gsub("[.+,+\\?+]", " ", x) })) # remove ramaining punc except apostrophes
   trans <- tm_map(trans, removeNumbers)
   trans <- tm_map(trans, content_transformer(tolower))
   if (rmStops) { trans <- tm_map(trans, removeWords, stops) }
@@ -61,7 +63,7 @@ myPreProc <- function(corp
 }
 
 custom.Tokenizer <- function(x, n) { 
-  NGramTokenizer(x, Weka_control(min = n, max= n))
+  unlist(lapply(ngrams(words(x), n), paste, collapse = " "), use.names = FALSE)
 }
 
 oneGramTK <- function(x) { custom.Tokenizer(x, 1) }
@@ -76,7 +78,6 @@ createTDM <- function(corp, tk) {
                                , removePunctuation = FALSE
                                , stopwords = FALSE
                                , stemming = FALSE
-                               , tolower = FALSE
                                , wordLengths = c(2, Inf)))
   TDM
 }
