@@ -12,7 +12,7 @@ testCreateTDM <- function(corp, tk) {
 }
 
 en_US <- dataLoad(sampDir)
-trans <- en_US
+trans <- en_US.unstemmed
 
 trans <- tm_map(trans, content_transformer(
   function(x) { iconv(x
@@ -34,6 +34,8 @@ trans <- tm_map(trans, content_transformer(
   function(x) { gsub("[~@%()_=:;{}`/&!#|]", " ", x) })) # remove anything with non-grammatical punc
 trans <- tm_map(trans, content_transformer(
   function(x) { gsub("[\\^$+\"]", " ", x) })) # remove anything with non-grammatical punc
+trans <- tm_map(trans, content_transformer(
+  function(x) { gsub("(^'| '|' |''| ' )", " ", x) })) # remove anything with non-grammatical punc
 trans <- tm_map(trans, content_transformer(
   function(x) { gsub("(^'| '|' |''| ' )", " ", x) })) # remove anything with non-grammatical punc
 trans <- tm_map(trans, content_transformer(
@@ -62,9 +64,9 @@ trans <- tm_map(trans, content_transformer(
 trans <- tm_map(trans, content_transformer(
   function(x) { gsub("[\\?+]", " ", x) })) # remove anything with non-grammatical punc
 
-grep("\\?", trans[[1]]$content) 
-grep("''", trans[[2]]$content, value = TRUE)
-gsub(" - ", " ", trans[[2]]$content[11383]) 
+grep("''", trans[[3]]$content) 
+grep(" '", trans[[3]]$content, value = TRUE)
+gsub(" '", " BUM", trans[[3]]$content[c(58956,64353,64988)]) 
 
 trans <- testCreateTDM(trans, threeGramTK)
 trans <- as.matrix(trans)

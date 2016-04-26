@@ -2,7 +2,7 @@
 predText <- function(tx, txType) {
   if (trimws(tx) == "") { return("") }
   if (!(grepl(" ", trimws(tx, which = "left")))) {
-    return(names(which.max(txType[[1]][grep(paste0("^", trimws(tx)), names(txType[[1]]))])))
+    return(names(sort(txType[[1]][grep(paste0("^", trimws(tx)), names(txType[[1]]))],decreasing = TRUE)[1:3]))
   }
 
   tx <- trimws(tx)
@@ -47,7 +47,7 @@ predText <- function(tx, txType) {
   names(p2) <- substring(names(p2), nchar(currentWords[1]) + 1)
   
   allCandidates <- unique(names(c(p4, p3, p2)))
-  if (sum(p4, p3, p2) == 0) { return(sample(names(sort(txType[[1]], decreasing = TRUE)[1:100]),1)) }
+  if (sum(p4, p3, p2) == 0) { return(sample(names(sort(txType[[1]], decreasing = TRUE)[1:100]),3)) }
   p1 <- txType[[1]][allCandidates] / n[1]
   
   p4 <- p4[allCandidates]
@@ -62,5 +62,4 @@ predText <- function(tx, txType) {
   p <- lambdas[1] * p4 + lambdas[2] * p3 + lambdas[3] * p2 + lambdas[4] * p1
   names(p) <- allCandidates
   names(p[order(p, decreasing = TRUE)][1:3])
-  # names(which.max(p))
 }

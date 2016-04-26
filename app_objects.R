@@ -18,7 +18,7 @@ en_US.freqs.3.unstemmed <- as.matrix(en_US.tdm.3.unstemmed)
 en_US.tdm.4.unstemmed <- createTDM(en_US.unstemmed, fourGramTK)
 en_US.freqs.4.unstemmed <- as.matrix(en_US.tdm.4.unstemmed)
 
-v <- 3
+v <- 0
 
 for (i in 1:4) {
   tdm <- as.matrix(get(paste0("en_US.tdm.", i, ".unstemmed")))

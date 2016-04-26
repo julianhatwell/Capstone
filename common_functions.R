@@ -39,7 +39,9 @@ myPreProc <- function(corp
   trans <- tm_map(trans, content_transformer(
     function(x) { gsub("[\\^$+\"]", " ", x) })) # remove anything with non-grammatical punc
   trans <- tm_map(trans, content_transformer(
-    function(x) { gsub("( '|' )", " ", x) })) # remove anything with non-grammatical punc
+    function(x) { gsub("(^'| '|' |''| ' )", " ", x) })) # remove anything with non-grammatical punc
+  trans <- tm_map(trans, content_transformer(
+    function(x) { gsub("(^'| '|' |''| ' )", " ", x) })) # repeat - it's buggy
   trans <- tm_map(trans, content_transformer(
     function(x) { gsub("[\\[*]", " ", x) })) # remove anything with non-grammatical punc
   trans <- tm_map(trans, content_transformer(
