@@ -10,7 +10,7 @@ rare <- 1
 source("app_startup_interpolation.R")
 
 shinyServer(
-  function(input, output) {
+  function(input, output, session) {
     pred <- reactive({
       textType <- get(input$textType)
       predText(input$inText, textType)
@@ -20,11 +20,17 @@ shinyServer(
 
     output$button <- renderUI({
       word <- pred()
-      assign('word', word, envir=.GlobalEnv)
-      button <- actionButton(inputId = "word", label=word)
+      assign('predWord', word, envir=.GlobalEnv)
+      button <- actionButton(inputId = "word1", label=word)
       tagList(button)
     })
     
+    observeEvent(input$word1, {
+      updateTextInput(session, "inText"
+                      , value = paste(input$inText
+                                      , get('predWord'
+                                            , envir=.GlobalEnv)))
+    })
   }
 )
 
