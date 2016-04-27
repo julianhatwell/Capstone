@@ -2,7 +2,7 @@
 predText <- function(tx, txType) {
   if (trimws(tx) == "") { return("") }
   if (!(grepl(" ", trimws(tx, which = "left")))) {
-    return(names(which.max(txType[[1]][grep(paste0("^", trimws(tx)), names(txType[[1]]))])))
+    return(names(sort(txType[[1]][grep(paste0("^", trimws(tx)), names(txType[[1]]))],decreasing = TRUE)[1:preds]))
   }
   
   tx <- trimws(tx)
@@ -59,5 +59,5 @@ predText <- function(tx, txType) {
   
   adjusted <- adjusted.4 + adjusted.3 + adjusted.2
   names(adjusted) <- allCandidates
-  names(which.max(adjusted)) 
+  names(p[order(p, decreasing = TRUE)][1:preds])
 }

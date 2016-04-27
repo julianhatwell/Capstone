@@ -7,6 +7,9 @@ load("tdm.Rdata")
 lambdas <- c(0.6, 0.29, 0.99995, 0.00005)
 rare <- v + 1
 
+# number of predictions to return
+preds <- 3
+
 source("app_startup_interpolation.R")
 
 shinyServer(
