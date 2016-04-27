@@ -1,4 +1,5 @@
 library(tm)
+library(dplyr)
 source("env_consts.R")
 source("common_functions.R")
 

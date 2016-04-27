@@ -4,7 +4,7 @@ predText <- function(tx, txType) {
   if (!(grepl(" ", trimws(tx, which = "left")))) {
     return(names(sort(txType[[1]][grep(paste0("^", trimws(tx)), names(txType[[1]]))],decreasing = TRUE)[1:preds]))
   }
-
+  
   tx <- trimws(tx)
   spaces <- rev(unlist(gregexpr(" ", tx)))
   if (spaces[1] < 0) { 
@@ -12,12 +12,12 @@ predText <- function(tx, txType) {
   } else {
     if (length(spaces) < 5) { spaces <- c(spaces,1) }
     currentWords <- ifelse(is.na(substring(tx, spaces)), NA
-                               , paste0(trimws(substring(tx, spaces)), " "))[1:min(c(3, (length(spaces))))]
+                           , paste0(trimws(substring(tx, spaces)), " "))[1:min(c(3, (length(spaces))))]
   }
-
+  
   # utilities
   raggedNames <- function(rn) unlist(lapply(strsplit(names(rn), " "), function(x) {first(rev(x))}))
-
+  
   n <- numeric(0)
   for (i in 1:4) {
     n[i] <- sum(txType[[i]]) + sum(txType[[i]] == v + rare)
@@ -61,5 +61,10 @@ predText <- function(tx, txType) {
   
   p <- lambdas[1] * p4 + lambdas[2] * p3 + lambdas[3] * p2 + lambdas[4] * p1
   names(p) <- allCandidates
-  names(p[order(p, decreasing = TRUE)][1:preds])
+  p <- p[p > 0]
+  pWords <- names(p[order(p, decreasing = TRUE)])
+  if (length(pWords) < preds) {
+    pWords <- c(pWords, sample(names(sort(txType[[1]], decreasing = TRUE)[1:100]), preds - length(pWords))) 
+  }
+  pWords[1:preds]
 }
