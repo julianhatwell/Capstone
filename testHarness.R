@@ -25,7 +25,7 @@ val.freqs.4 <- as.matrix(val.tdm.4)
 # set the algo of choice, manually
 
 testPredText <- function(trials = 10, sd = 12021) {
-  res <- matrix(nrow = 0, ncol = 7)
+  res <- matrix(nrow = 0, ncol = 13)
   set.seed(sd)
   for (k in 2:4) {
     frq <- get(paste0("val.freqs.", k))
@@ -42,26 +42,45 @@ testPredText <- function(trials = 10, sd = 12021) {
         probe <- trimws(substring(tx, 1, spaces[1]))
         if (k == 2) probe <- paste0(probe, " ")
         nextWord <- trimws(substring(tx, spaces[1]))
-        
+        print("pred a")
+        pred_a = predText(probe, all)
+        print("pred x")
+        pred_x = predText(probe, txt)
+        print("pred t")
+        pred_t = predText(probe, twit)
+                
         res <- rbind(res, c(type = j
                             , ngram = k
                             , probe = probe
                             , nextWord = nextWord
-                            , pred_a = predText(probe, all)
-                            , pred_x = predText(probe, txt)
-                            , pred_t = predText(probe, twit)))
+                            , pred_a_1 = pred_a[1]
+                            , pred_a_2 = pred_a[2]
+                            , pred_a_3 = pred_a[3]
+                            , pred_x_1 = pred_x[1]
+                            , pred_x_2 = pred_x[2]
+                            , pred_x_3 = pred_x[3]
+                            , pred_t_1 = pred_t[1]
+                            , pred_t_2 = pred_t[2]
+                            , pred_t_3 = pred_t[3]
+                            ))
       }
     }
   }
   res <- data.frame(res
-        , correct_a = as.character(res[,4]) == as.character(res[,5])
-        , correct_x = as.character(res[,4]) == as.character(res[,6])
-        , correct_t = as.character(res[,4]) == as.character(res[,7]))
+        , correct_a_1 = as.character(res[i,4]) == as.character(res[i,5])
+        , correct_x_1 = as.character(res[i,4]) == as.character(res[i,8])
+        , correct_t_1 = as.character(res[i,4]) == as.character(res[i,11])
+        , correct_a_any = any(as.character(res[i,4]) == as.character(res[i,5:7]))
+        , correct_x_any = any(as.character(res[i,4]) == as.character(res[i,8:10]))
+        , correct_t_any = any(as.character(res[i,4]) == as.character(res[i,11:13]))
+        )
   
-  out <- list(accuracy = list(a = tapply(res$correct_a, list(res$ngram, res$type), sum)
-                              , x = tapply(res$correct_x, list(res$ngram, res$type), sum)
-                              , t = tapply(res$correct_t, list(res$ngram, res$type), sum)
-                              )
+  out <- list(accuracy_1 = list(a = tapply(res$correct_a_1, list(res$ngram, res$type), sum)
+                              , x = tapply(res$correct_x_1, list(res$ngram, res$type), sum)
+                              , t = tapply(res$correct_t_1, list(res$ngram, res$type), sum))
+              , accuracy_any = list(a = tapply(res$correct_a_any, list(res$ngram, res$type), sum)
+                                , x = tapply(res$correct_x_any, list(res$ngram, res$type), sum)
+                                , t = tapply(res$correct_t_any, list(res$ngram, res$type), sum))
               , matches = res)
   out
 }
