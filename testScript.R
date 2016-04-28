@@ -1,6 +1,8 @@
 library(parallel)
 library(doParallel)
 
+library(profr)
+
 # initialise inner vars
 trm.1.1 <- NULL
 trm.2.1 <- NULL
@@ -43,7 +45,9 @@ runParTest <- function(f) {
 source("shinapp\\app_startup_interpolation.R")
 
 pred_interp <- testPredText(trials, seed)
+profr(pred_interp <- testPredText(trials, seed))
 pred_interp <- runParTest(testPredText(trials, seed))
+profr(pred_interp <- runParTest(testPredText(trials, seed)))
 pred_interp$lambdas <- lambdas
 pred_interp$v <- v
 pred_interp$rare <- rare
