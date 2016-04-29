@@ -18,7 +18,7 @@ en_US.freqs.3.unstemmed <- as.matrix(en_US.tdm.3.unstemmed)
 en_US.tdm.4.unstemmed <- createTDM(en_US.unstemmed, fourGramTK)
 en_US.freqs.4.unstemmed <- as.matrix(en_US.tdm.4.unstemmed)
 
-v <- 0
+v <- 4
 
 for (i in 1:4) {
   tdm <- as.matrix(get(paste0("en_US.tdm.", i, ".unstemmed")))
@@ -44,4 +44,4 @@ all <- setType("all")
 twit <- setType("twitter")
 txt <- setType("text")
 
-save(all, twit, txt, v, file = "shinapp\\tdm.Rdata")
+save(all, twit, txt, v, file = "shinapp\\tdm_v4.Rdata")

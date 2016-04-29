@@ -1,6 +1,3 @@
-library(parallel)
-library(doParallel)
-
 library(profr)
 
 # initialise inner vars
@@ -24,30 +21,14 @@ lambdas <- c(0.6, 0.29, 0.99995, 0.00005)
 rare <- 1
 # rare <- sum(txType[[1]] < v + 1)
 
-trials <- 1
+trials <- 100
 seed <- 12021
-
-runParTest <- function(f) {
-  
-  # set up parallel processing
-  p_clus <- makeCluster(detectCores() - 1)
-  registerDoParallel(p_clus)
-  
-  out <- f
-  
-  # close parallel processing
-  stopCluster(p_clus)
-  
-  return(out)
-}
-
+load("shinapp\\tdm_v4.Rdata")
 
 source("shinapp\\app_startup_interpolation.R")
 
 pred_interp <- testPredText(trials, seed)
-profr(pred_interp <- testPredText(trials, seed))
-pred_interp <- runParTest(testPredText(trials, seed))
-profr(pred_interp <- runParTest(testPredText(trials, seed)))
+profr(testPredText(trials, seed))
 pred_interp$lambdas <- lambdas
 pred_interp$v <- v
 pred_interp$rare <- rare

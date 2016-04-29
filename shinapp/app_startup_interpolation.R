@@ -16,7 +16,7 @@ predText <- function(tx, txType) {
   }
   
   # utilities
-  raggedNames <- function(rn) unlist(lapply(strsplit(names(rn), " "), function(x) {first(rev(x))}))
+  raggedNames <- function(rn) unlist(lapply(strsplit(names(rn), " "), function(x) {dplyr::first(rev(x))}))
   
   n <- numeric(0)
   for (i in 1:4) {
