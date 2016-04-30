@@ -1,4 +1,24 @@
 library(profr)
+library(tm)
+library(dplyr)
+source("utility_code2.R")
+# load up the validation catalogues
+en_US.val <- dataLoad(valDir)
+val <- myPreProc(en_US.val, stem = FALSE, rmStops = FALSE)
+
+# creating nGrams from val objects
+val.tdm.1 <- createTDM(val, oneGramTK)
+val.freqs.1 <- as.matrix(val.tdm.1)
+
+val.tdm.2 <- createTDM(val, twoGramTK)
+val.freqs.2 <- as.matrix(val.tdm.2)
+
+val.tdm.3 <- createTDM(val, threeGramTK)
+val.freqs.3 <- as.matrix(val.tdm.3)
+
+val.tdm.4 <- createTDM(val, fourGramTK)
+val.freqs.4 <- as.matrix(val.tdm.4)
+
 
 # initialise inner vars
 trm.1.1 <- NULL

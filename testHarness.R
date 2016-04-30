@@ -1,28 +1,3 @@
-library(tm)
-library(dplyr)
-source("env_consts.R")
-source("common_functions.R")
-
-# load up the app objects
-load("shinapp\\tdm.Rdata")
-
-# load up the validation catalogues
-en_US.val <- dataLoad(valDir)
-val <- myPreProc(en_US.val, stem = FALSE, rmStops = FALSE)
-
-# creating nGrams from val objects
-val.tdm.1 <- createTDM(val, oneGramTK)
-val.freqs.1 <- as.matrix(val.tdm.1)
-
-val.tdm.2 <- createTDM(val, twoGramTK)
-val.freqs.2 <- as.matrix(val.tdm.2)
-
-val.tdm.3 <- createTDM(val, threeGramTK)
-val.freqs.3 <- as.matrix(val.tdm.3)
-
-val.tdm.4 <- createTDM(val, fourGramTK)
-val.freqs.4 <- as.matrix(val.tdm.4)
-
 # set the algo of choice, manually
 
 testPredText <- function(trials = 10, sd = 12021) {

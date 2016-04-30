@@ -1,8 +1,12 @@
 
 predText <- function(tx, txType) {
-  if (trimws(tx) == "") { return("") }
+  if (trimws(tx) == "") { return(list(words = c("", "", ""), probs = rep(0, 3), firstWord = TRUE)) }
   if (!(grepl(" ", trimws(tx, which = "left")))) {
-    return(names(sort(txType[[1]][grep(paste0("^", trimws(tx)), names(txType[[1]]))],decreasing = TRUE)[1:preds]))
+    words <- names(sort(txType[[1]][grep(paste0("^", trimws(tx)), names(txType[[1]]))],decreasing = TRUE)[1:preds])
+    probs <- txType[["adjProbs.1"]][words]
+    return(list(words = words
+                , probs = probs
+                , firstWord = TRUE))
   }
   
   tx <- trimws(tx)
@@ -15,49 +19,51 @@ predText <- function(tx, txType) {
                            , paste0(trimws(substring(tx, spaces)), " "))[1:min(c(3, (length(spaces))))]
   }
     
-  trm.2 <- txType[[2]][grep(paste0("^",currentWords[1])
-                            ,names(txType[[2]]))]
+  trm.2 <- txType[["adjCounts.2"]][grep(paste0("^",currentWords[1])
+                            ,names(txType[["freqs.2"]]))]
   if (length(trm.2) == 0) { 
-    return(sample(names(sort(txType[[1]], decreasing = TRUE)[1:100]),1)) 
+    words <- sample(names(sort(txType[[1]], decreasing = TRUE)[1:100]), preds)
+    probs <- txType[["adjProbs.1"]][words]
+    return(list(words = words
+                , probs = probs
+                , firstWord = FALSE))
   } else {
-    trm.2a <- txType[[1]]
-    unseen.2 <- (1 + sum(trm.2 < rare))/(sum(trm.2a) + rare)
-    adjusted.2 <- (trm.2 + 1) * unseen.2
-    names(adjusted.2) <- substring(names(trm.2), nchar(currentWords[1]) + 1)
+    names(trm.2) <- substring(names(trm.2), nchar(currentWords[1]) + 1)
+    trm.2a <- txType[["freqs.1"]][trimws(currentWords[1])]
+    condProbs.2 <- trm.2/trm.2a
   }
   if (!(is.na(currentWords[2]))) {
-    trm.3 <- txType[[3]][grep(paste0("^",currentWords[2])
-                              ,names(txType[[3]]))]
+    trm.3 <- txType[["adjCounts.3"]][grep(paste0("^",currentWords[2])
+                              ,names(txType[["freqs.3"]]))]
     if (length(trm.3) > 0) {
-      trm.3a <- txType[[2]][grep(paste0("^",trimws(currentWords[2]))
-                                 ,names(txType[[2]]))]
-      unseen.3 <- (1 + sum(trm.3 < rare))/(sum(trm.3a) + rare)
-      adjusted.3 <- (trm.3 + 1) * unseen.3
-      names(adjusted.3) <- substring(names(trm.3), nchar(currentWords[2]) + 1)
+      names(trm.3) <- substring(names(trm.3), nchar(currentWords[2]) + 1)
+      trm.3a <- txType[["freqs.2"]][trimws(currentWords[2])]
+      condProbs.3 <- trm.3/trm.3a
     }
   }
   if (!(is.na(currentWords[3]))) {
-    trm.4 <- txType[[4]][grep(paste0("^",currentWords[3])
-                                       ,names(txType[[4]]))]
+    trm.4 <- txType[["adjCounts.4"]][grep(paste0("^",currentWords[3])
+                                       ,names(txType[["freqs.4"]]))]
     if (length(trm.4) > 0) {
-      trm.4a <- txType[[3]][grep(paste0("^",trimws(currentWords[3]))
-                       ,names(txType[[3]]))]
-      unseen.4 <- (1 + sum(trm.4 < rare))/(sum(trm.4a) + rare)
-      adjusted.4 <- (trm.4 + 1) * unseen.4
-      names(adjusted.4) <- substring(names(trm.4), nchar(currentWords[3]) + 1)
+      names(trm.4) <- substring(names(trm.4), nchar(currentWords[3]) + 1)
+      trm.4a <- txType[["freqs.3"]][trimws(currentWords[3])]
+      condProbs.4 <- trm.4/trm.4a
     }
   }
-  allCandidates <- unique(names(c(adjusted.4, adjusted.3, adjusted.2)))
-  adjusted.4 <- adjusted.4[allCandidates]
-  adjusted.4[is.na(adjusted.4)] <- 0
-  adjusted.3 <- adjusted.3[allCandidates]
-  adjusted.3[is.na(adjusted.3)] <- 0
-  adjusted.2 <- adjusted.2[allCandidates]
-  adjusted.2[is.na(adjusted.2)] <- 0
-  adjusted.2[adjusted.3 != 0] <- 0
-  adjusted.3[adjusted.4 != 0] <- 0
+  allCandidates <- unique(names(c(condProbs.4, condProbs.3, condProbs.2)))
+  condProbs.4 <- condProbs.4[allCandidates]
+  condProbs.4[is.na(condProbs.4)] <- 0
+  condProbs.3 <- condProbs.3[allCandidates]
+  condProbs.3[is.na(condProbs.3)] <- 0
+  condProbs.2 <- condProbs.2[allCandidates]
+  condProbs.2[is.na(condProbs.2)] <- 0
+  condProbs.2[condProbs.3 != 0] <- 0
+  condProbs.3[condProbs.4 != 0] <- 0
   
-  adjusted <- adjusted.4 + adjusted.3 + adjusted.2
-  names(adjusted) <- allCandidates
-  names(p[order(p, decreasing = TRUE)][1:preds])
+  condProbs <- condProbs.4 + (1 - sum(condProbs.4)) * condProbs.3 + (1 - sum(condProbs.3)) * condProbs.2
+  names(condProbs) <- allCandidates
+  condProbs <- condProbs[condProbs > 0]
+  condProbs <- condProbs[order(condProbs, decreasing = TRUE)]
+  words <- names(condProbs)
+  return(list(words = words[1:preds], probs = condProbs[1:preds], firstWord = FALSE))
 }

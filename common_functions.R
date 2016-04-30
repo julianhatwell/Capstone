@@ -61,7 +61,16 @@ myPreProc <- function(corp
     trans <- tm_map(trans, stemDocument)
     # trans <- tm_map(trans, stemCompletion, dictionary=dict, type = "first")
   }
-  trans
+  trans <- tm_map(trans, content_transformer(
+    function(x) { gsub("(^'| '|' |''| ' )", " ", x) })) # remove anything with non-grammatical punc
+  trans <- tm_map(trans, content_transformer(
+    function(x) { gsub("(-{2,}|-_+-*| -[a-zA-Z]+|^-|[0-9]+-+|-+[0-9]+| - )", " ", x) })) # remove anything with non-grammatical punc
+  trans <- tm_map(trans, content_transformer(
+    function(x) { gsub(" - ", " ", x) })) # remove anything with non-grammatical punc
+  trans <- tm_map(trans, content_transformer(
+    function(x) { trimws(x, which = "both") })) # belt and braces
+  
+    trans
 }
 
 custom.Tokenizer <- function(x, n) { 
@@ -80,6 +89,6 @@ createTDM <- function(corp, tk) {
                                , removePunctuation = FALSE
                                , stopwords = FALSE
                                , stemming = FALSE
-                               , wordLengths = c(2, Inf)))
+                               , wordLengths = c(1, Inf)))
   TDM
 }
