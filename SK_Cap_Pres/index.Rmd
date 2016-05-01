@@ -18,27 +18,14 @@ This presentation is the last part of the Coursera Data Science Specialisation C
 The objective of the project, which has been conducted in partnership with Swiftkey and inspired by their app, is to create an algorithm that can predict the next word given a text input and deliver this into production as a hosted ShinyApp.
 
 <div style='text-align: center;'>
-    <img height='250' src='Capture.png' />
+    <img height='250' src='https://raw.githubusercontent.com/julianhatwell/ds_capstone/master/SK_Cap_Pres/Capture.PNG' />
 </div>
-
 
 A screenshot from the finished ShinyApp showing the key features.
 
 ---
- 
-## Theory & Practice
 
-The theories behind [text mining](https://en.wikipedia.org/wiki/Text_mining) first appeared in the 1980's. A typical approach is to create an nGram model and determine the distribution and probability of various words and sentences from this model. An nGram is a contiguous sequence of words of length n that appear somewhere in the source document.
-
-These theories are now sufficiently mature for there to be widely available tooling for various platforms. The ["tm" package](https://cran.r-project.org/web/packages/tm/index.html) for R has been used extensively to carry out this project.
-
-[Functions](https://cran.r-project.org/web/packages/tm/vignettes/tm.pdf) in the ["tm" package](https://cran.r-project.org/web/packages/tm/index.html) make it trivial to determine e.g. what are the most frequently used terms, as well as more complicated lookups e.g. where nGrams appear to be associated by their appearance together in multiple source documents.
-
-SwiftKey have kindly provided three sources of user generated content based on Blogs, News and Twitter. These text documents are sampled, tokenised (to identify individual words within text) and converted into nGrams.
-
----
-
-## Word Prediction App for the Capstone Project
+## App Features
 
 The app can be found [here](https://julianhatwell.shinyapps.io/wordpredict). It is very easy to use:
 
@@ -51,7 +38,25 @@ The app can be found [here](https://julianhatwell.shinyapps.io/wordpredict). It 
 * Special Features:
     + Top One Prediction is unambiguously displayed
     + Buttons dynamically update with top 3 and can be used to update the input
-    + Graph shows displays certainty of prediction as probabilities
+    + Graph displays certainty of prediction as probabilities of each word
+
+---
+
+## Prediction Algorithm
+
+nGrams have their counts adjusted using Good-Turing smoothing to reduce over-fitting. Probabilities of very rare nGrams are reduced. c is nGram count and n is the number of nGrams with count c:
+$$c^*=(c+1)\frac{n_{c+1}}{n_c}$$
+
+Very low (< $5e^{-6}$) Maximum Likelhood nGrams are unlikely to be predicted, so are removed from the model. ML simply calculated as:
+$$P_{ML}(nGram) = P(w_i)P(w_{i-1})P(w_{i-2})...P(w_{i-n})$$
+
+Katz backoff finds conditional probabilities for candidate predictions using the adjusted count and backs off to a lower order nGram if no match found. $\alpha$ tunes down the lower order nGram probabilities. The candidate with the highest probability is chosen:
+$$\begin{equation}
+  P_{katz}(y|x)=\begin{cases}
+    \frac{c^*(x, y)}{c(x)}, & \text{if $c(xy) > 0$}.\\
+    \alpha(x)P_{katz}(y), & \text{otherwise}.
+  \end{cases}
+\end{equation}$$
 
 ---
 

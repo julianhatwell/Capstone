@@ -18,7 +18,7 @@ save(en_US.freqs.1.unstemmed
      , en_US.freqs.2.unstemmed
      , en_US.freqs.3.unstemmed
      , en_US.freqs.4.unstemmed
-     , file = "intermediateObjs.R")
+     , file = "intermediateObjs.RData")
 
 for (i in 1:4) {
   tdm <- as.matrix(get(paste0("en_US.tdm.", i, ".unstemmed")))
