@@ -1,9 +1,16 @@
 
-predText <- function(tx, txType) {
+predText <- function(tx, txType, preds = 3) {
+  # tuning parameters
+  lambdas <- c(8000, 1900, 90.5, 0.5)
+  
   if (trimws(tx) == "") { return(list(words = c("", "", ""), probs = rep(0, 3), firstWord = TRUE)) }
   if (!(grepl(" ", trimws(tx, which = "left")))) {
-    words <- names(sort(txType[[1]][grep(paste0("^", trimws(tx)), names(txType[[1]]))],decreasing = TRUE)[1:preds])
+    words <- names(sort(txType[["probs.1"]][grep(paste0("^", trimws(tx))
+                                                 , names(txType[["probs.1"]]))]
+                        , decreasing = TRUE)[1:preds])
+    words[is.na(words)] <- ""
     probs <- txType[["probs.1"]][words]
+    probs[is.na(probs)] <- 0
     return(list(words = words
                 , probs = probs
                 , firstWord = TRUE))
@@ -43,14 +50,16 @@ predText <- function(tx, txType) {
   p2 <- txType[["probs.2"]][grep(paste0("^", currentWords[1]), names(txType[["probs.2"]]))]
   names(p2) <- substring(names(p2), nchar(currentWords[1]) + 1)
   
-  allCandidates <- unique(names(c(p4, p3, p2)))
   if (sum(p4, p3, p2) == 0) { 
     words <- sample(names(sort(txType[[1]], decreasing = TRUE)[1:100]), preds)
     probs <- txType[["probs.1"]][words]
     return(list(words = words
                 , probs = probs
-                , firstWord = FALSE)) }
-  p1 <- txType[[1]][allCandidates] / n[1]
+                , firstWord = FALSE)) 
+  }
+  
+  allCandidates <- unique(names(c(p4, p3, p2)))
+  p1 <- txType[["probs.1"]][allCandidates]
   
   p4 <- p4[allCandidates]
   p4[is.na(p4)] <- 0

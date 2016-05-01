@@ -10,12 +10,14 @@ shinyUI(
                      "Formal" = "txt",
                      "Tweet" = "twit")),
       textInput('inText', label = 'Enter Text:'),
-      uiOutput("button")
+      h5("Lazy Buttons"),
+      uiOutput("button"),
+      h3("One Top Prediction:"),
+      h3(textOutput('topPred'))
       ),
 
     mainPanel(
-      h3('Suggested next words'),
-      verbatimTextOutput("pred")
-    )
+      plotOutput('wordPlot')
+      )
   )
 )

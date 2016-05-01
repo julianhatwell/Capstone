@@ -20,8 +20,6 @@ save(en_US.freqs.1.unstemmed
      , en_US.freqs.4.unstemmed
      , file = "intermediateObjs.R")
 
-v <- 0
-
 for (i in 1:4) {
   tdm <- as.matrix(get(paste0("en_US.tdm.", i, ".unstemmed")))
   all <- apply(tdm, 1, sum)
@@ -43,15 +41,8 @@ setType <- function(txType) {
     probs <- tType[[paste0("freqs.", i)]]/sum(tType[[paste0("freqs.", i)]])
     tType[[paste0("probs.", i)]] <- probs
   }
-  for (i in 2:4) {
-    space <- unlist(gregexpr(" ", names(tType[[paste0("freqs.", i)]])))
-    space <- space[seq_along(space) %% (i-1) == 0]
-    firstWord <- substring(names(tType[[paste0("freqs.", i)]]), 1, space - 1)
-    condFreq <- tType[[paste0("freqs.", i-1)]][firstWord]
-    tType[[paste0("condProbs.", i)]] <- tType[[paste0("freqs.", i)]]/condFreq
-  }
   for (i in 1:4) {
-    gtCounts <- sapply(1:500, function(x) { length(all[[paste0("freqs.", i)]][all[[paste0("freqs.", i)]]==x]) })
+    gtCounts <- sapply(1:500, function(x) { length(tType[[paste0("freqs.", i)]][tType[[paste0("freqs.", i)]]==x]) })
     firstZero <- which(gtcounts == 0)[1]
     goodTuringAdjustor <- function(r) {
       if (r > firstZero) { 
@@ -63,11 +54,31 @@ setType <- function(txType) {
     tType[[paste0("adjCounts.", i)]] <- sapply(tType[[paste0("freqs.", i)]], goodTuringAdjustor)
   }
   tType[["adjProbs.1"]] <- tType[["adjCounts.1"]]/(sum(tType[["freqs.1"]]) + 1)
+
+    return(tType)
+}
+
+all_full <- setType("all")
+twit_full <- setType("twitter")
+txt_full <- setType("text")
+
+modelReduce <- function(tType, rare) {
+  for (i in 1:4) {
+    typs <- c("freqs.", "probs.", "adjCounts.")
+    nonRare <- tType[[paste0("probs.", i)]] > rare
+    for (typ in typs) {
+      tType[[paste0(typ, i)]] <- tType[[paste0(typ, i)]][nonRare]
+    }
+    tType[["adjProbs.1"]] <- tType[["adjProbs.1"]][nonRare]  
+  }
   return(tType)
 }
 
-all <- setType("all")
-twit <- setType("twitter")
-txt <- setType("text")
+rare <- 5e-6
+all <- modelReduce(all_full, rare)
+twit <- modelReduce(twit_full, rare)
+txt <- modelReduce(txt_full, rare)
 
-save(all, twit, txt, v, file = "shinapp\\tdm_cond.Rdata")
+
+
+save(all, twit, txt, file = "shinapp\\tdm_cond.Rdata")

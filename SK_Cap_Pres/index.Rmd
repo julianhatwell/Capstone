@@ -13,11 +13,16 @@ knit        : slidify::knit2slides
 
 ## Introduction & Motivation
 
-The Coursera Data Science Specialisation is by now a widely recognised MOOC, conducted over 9 modules plus a Capstone Project. Taking 10-12 months to complete.
+This presentation is the last part of the Coursera Data Science Specialisation Capstone Project deliverables. 
 
-This presentation is part of the final output of the Capstone Project, which has been conducted in partnership with Swiftkey.
+The objective of the project, which has been conducted in partnership with Swiftkey and inspired by their app, is to create an algorithm that can predict the next word given a text input and deliver this into production as a hosted ShinyApp.
 
-The objective (inspired by mobile apps such as SwiftKey) is to create an algorithm that can predict the next word given a text input and deliver this into production as a hosted ShinyApp.
+<div style='text-align: center;'>
+    <img height='250' src='Capture.png' />
+</div>
+
+
+A screenshot from the finished ShinyApp showing the key features.
 
 ---
  
@@ -35,28 +40,31 @@ SwiftKey have kindly provided three sources of user generated content based on B
 
 ## Word Prediction App for the Capstone Project
 
-The app can be found [here](https://julianhatwell.shinyapps.io/wordpredict). 
-
-It is very easy to use and implements the following features:
+The app can be found [here](https://julianhatwell.shinyapps.io/wordpredict). It is very easy to use:
 
 * Select the type of prediction from "General," "Formal" or "Tweet."
-    + App will dynamically switch to appropriate search space to povide a tailored prediction
-    + In the SwiftKey setting, it could detect the application the user is working on such as blogging or Twitter
+    + App will dynamically switch to between all, blog & news or twitter search space
+    + Useful if a phone app can detect what the user is working on and tailor prediction
 * Start typing text:
-    + After some letters are typed but before any spaces, partial matches return a prediction for first word completion
-    + After the first space following some word/characters, algorithm moves to the nGram model to predict the next word
+    + After some letters but before any spaces, predictions are for first word completion
+    + After the first space following some word/characters, the model changes to predict the next word
+* Special Features:
+    + Top One Prediction is unambiguously displayed
+    + Buttons dynamically update with top 3 and can be used to update the input
+    + Graph shows displays certainty of prediction as probabilities
 
 ---
 
 ## Appendix
 
-[Interim Milestone Report](http://rpubs.com/julianhatwell/ds_cap_ms_rep), [Gihub Repo](https://github.com/julianhatwell/SK_Cap) and [The Word Predict App](https://julianhatwell.shinyapps.io/wordpredict/)
+Project Files: [Interim Milestone Report](http://rpubs.com/julianhatwell/ds_cap_ms_rep), [Gihub Repo](https://github.com/julianhatwell/ds_capstone) and [The Word Predict App](https://julianhatwell.shinyapps.io/wordpredict/)
 
-Algorithms researched and tested:
+Algorithms researched and tested (the last one chosen for the app):
 * A naive backoff (without smoothing)
 * Interplotation
 * Good-Turing Smoothing
+* Katz backoff, using Good-Turing Smoothing
 
-References: [Cornell University's lecture notes ](http://www.cs.cornell.edu/courses/cs4740/2014sp/lectures.htm), [Presentation from Stanford University](http://nlp.stanford.edu/~wcmac/papers/20050421-smoothing-tutorial.pdf), [Anoop Sarkhar's Notes](http://anoopsarkar.github.io/nlp-class/assets/slides/lm.pdf), [N Chambers Lecture Notes](http://www.usna.edu/Users/cs/nchamber/courses/nlp/f12/slides/set4-smoothing.pdf), [Code example for active input buttons](https://github.com/bergiste/coursera-final-capstone/blob/master/shiny-app/server.R)
+I had the idea to include lazy buttons to give the app a dynamic element. I used [this code example](https://github.com/bergiste/coursera-final-capstone/blob/master/shiny-app/server.R) as a starting point and adapted it for my own needs. All modeling, smoothing and plotting code is otherwise my own work.
 
----
+References: [Anoop Sarkhar's Notes](http://anoopsarkar.github.io/nlp-class/assets/slides/lm.pdf), [N Chambers Lecture Notes](http://www.usna.edu/Users/cs/nchamber/courses/nlp/f12/slides/set4-smoothing.pdf), [Cornell University's lecture notes ](http://www.cs.cornell.edu/courses/cs4740/2014sp/lectures.htm), [Presentation from Stanford University](http://nlp.stanford.edu/~wcmac/papers/20050421-smoothing-tutorial.pdf)

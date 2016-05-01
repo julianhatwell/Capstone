@@ -1,9 +1,13 @@
 
-predText <- function(tx, txType) {
+predText <- function(tx, txType, preds = 3) {
   if (trimws(tx) == "") { return(list(words = c("", "", ""), probs = rep(0, 3), firstWord = TRUE)) }
   if (!(grepl(" ", trimws(tx, which = "left")))) {
-    words <- names(sort(txType[[1]][grep(paste0("^", trimws(tx)), names(txType[[1]]))],decreasing = TRUE)[1:preds])
-    probs <- txType[["adjProbs.1"]][words]
+    words <- names(sort(txType[["probs.1"]][grep(paste0("^", trimws(tx))
+                                                 , names(txType[["probs.1"]]))]
+                        , decreasing = TRUE)[1:preds])
+    words[is.na(words)] <- ""
+    probs <- txType[["probs.1"]][words]
+    probs[is.na(probs)] <- 0
     return(list(words = words
                 , probs = probs
                 , firstWord = TRUE))
@@ -23,7 +27,7 @@ predText <- function(tx, txType) {
                             ,names(txType[["freqs.2"]]))]
   if (length(trm.2) == 0) { 
     words <- sample(names(sort(txType[[1]], decreasing = TRUE)[1:100]), preds)
-    probs <- txType[["adjProbs.1"]][words]
+    probs <- txType[["probs.1"]][words]
     return(list(words = words
                 , probs = probs
                 , firstWord = FALSE))
@@ -39,8 +43,8 @@ predText <- function(tx, txType) {
       names(trm.3) <- substring(names(trm.3), nchar(currentWords[2]) + 1)
       trm.3a <- txType[["freqs.2"]][trimws(currentWords[2])]
       condProbs.3 <- trm.3/trm.3a
-    }
-  }
+    } else { condProbs.3 <- numeric(0) }
+  } else { condProbs.3 <- numeric(0) }
   if (!(is.na(currentWords[3]))) {
     trm.4 <- txType[["adjCounts.4"]][grep(paste0("^",currentWords[3])
                                        ,names(txType[["freqs.4"]]))]
@@ -48,8 +52,8 @@ predText <- function(tx, txType) {
       names(trm.4) <- substring(names(trm.4), nchar(currentWords[3]) + 1)
       trm.4a <- txType[["freqs.3"]][trimws(currentWords[3])]
       condProbs.4 <- trm.4/trm.4a
-    }
-  }
+    } else { condProbs.4 <- numeric(0) }
+  } else { condProbs.4 <- numeric(0) }
   allCandidates <- unique(names(c(condProbs.4, condProbs.3, condProbs.2)))
   condProbs.4 <- condProbs.4[allCandidates]
   condProbs.4[is.na(condProbs.4)] <- 0

@@ -1,26 +1,24 @@
 library(shiny)
 library(tm)
 library(dplyr)
-load("tdm_v4.Rdata")
+load("tdm_cond.Rdata")
 
-# tuning parameters
-lambdas <- c(0.6, 0.29, 0.99995, 0.00005)
-rare <- v + 1
-
-# number of predictions to return
-preds <- 3
-
-source("app_startup_interpolation.R")
+source("app_startup_gtd.R")
+source("app_startup_plot.R")
 
 shinyServer(
   function(input, output, session) {
+    
+    # number of predictions to return
+    preds <- 3
+    
     pred <- reactive({
       textType <- get(input$textType)
-      predText(input$inText, textType)
+      predText(input$inText, textType, preds)
       })
     
-    output$pred <- renderPrint({pred()})
-
+    output$topPred <- renderText({pred()$words[1]})
+    
     output$button <- renderUI({
       word <- pred()
       firstWord <- word$firstWord
@@ -33,6 +31,9 @@ shinyServer(
       }
       tagList(buttons)
     })
+    output$wordPlot <- renderPlot({
+        wordProbPlot(pred()$probs, preds)
+      })
     
     observeEvent(input$word1, {
       updateTextInput(session, "inText"
